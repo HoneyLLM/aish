@@ -75,13 +75,18 @@ func main() {
 		log.Fatal(err)
 	}
 
+	log.Info("New session", "user", shellUsername, "host", shellHostname)
+
 	if shellCommand != "" {
+		log.Info("User", "command", shellCommand)
 		output, err := aish.Execute(context.Background(), shellCommand)
 		if err != nil {
 			log.Fatal(err)
 			return
 		}
-		fmt.Print(utils.RemoveLastLine(output))
+		output = utils.RemoveLastLine(output)
+		log.Info("AI", "output", output)
+		fmt.Print(output)
 		return
 	}
 

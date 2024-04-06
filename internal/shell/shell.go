@@ -4,7 +4,6 @@ import (
 	"context"
 
 	"github.com/PeronGH/aish/internal/prompt"
-	"github.com/PeronGH/aish/internal/utils"
 	openai "github.com/sashabaranov/go-openai"
 )
 
@@ -26,7 +25,7 @@ type AiShellConfig struct {
 }
 
 func NewAiShell(config AiShellConfig) (*AiShell, string, error) {
-	history, err := prompt.GetPrompt(config.PromptName, prompt.PromptInit{
+	prompt, err := prompt.GetPrompt(config.PromptName, prompt.PromptInit{
 		Username: config.Username,
 		Hostname: config.Hostname,
 	})
@@ -34,13 +33,11 @@ func NewAiShell(config AiShellConfig) (*AiShell, string, error) {
 		return nil, "", err
 	}
 
-	initialPrompt := utils.GetLastLine(history[len(history)-1].Content)
-
 	return &AiShell{
 		openai:  config.Openai,
 		model:   config.OpenaiModel,
-		history: history,
-	}, initialPrompt, nil
+		history: prompt.Messages,
+	}, prompt.InitialPrompt, nil
 }
 
 func (s *AiShell) Execute(ctx context.Context, command string) (string, error) {

@@ -39,18 +39,23 @@ type PromptInit struct {
 	Username string
 }
 
-func GetPrompt(system string, init PromptInit) ([]openai.ChatCompletionMessage, error) {
+type Prompt struct {
+	Messages      []openai.ChatCompletionMessage `json:"messages"`
+	InitialPrompt string                         `json:"initial_prompt"`
+}
+
+func GetPrompt(system string, init PromptInit) (*Prompt, error) {
 	r, w := io.Pipe()
 	go func() {
 		tmpl.ExecuteTemplate(w, system+".json", init)
 		w.Close()
 	}()
 
-	var result []openai.ChatCompletionMessage
+	var result Prompt
 	err := json.NewDecoder(r).Decode(&result)
 	if err != nil {
 		return nil, errors.Join(errDecodePrompt, err)
 	}
 
-	return result, nil
+	return &result, nil
 }
