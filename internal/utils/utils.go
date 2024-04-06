@@ -17,3 +17,11 @@ func GetLastLine(s string) string {
 	}
 	return s[lastIndex+1:]
 }
+
+func RemoveLastLine(s string) string {
+	lastIndex := strings.LastIndex(s, "\n")
+	if lastIndex == -1 {
+		return ""
+	}
+	return s[:lastIndex+1]
+}

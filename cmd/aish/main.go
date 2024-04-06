@@ -36,6 +36,10 @@ func main() {
 	if openaiModel == "" {
 		openaiModel = "gpt-3.5-turbo"
 	}
+	promptOs := os.Getenv("PROMPT_OS")
+	if promptOs == "" {
+		promptOs = "ubuntu"
+	}
 	shellUsername := os.Getenv("SHELL_USERNAME")
 	if shellUsername == "" {
 		u, _ := user.Current()
@@ -52,6 +56,7 @@ func main() {
 			shellHostname = "server"
 		}
 	}
+	shellCommand := os.Getenv("SHELL_COMMAND")
 
 	// Create a new OpenAI client
 	config := openai.DefaultConfig(openaiApiKey)
@@ -61,13 +66,23 @@ func main() {
 	aish, initialPrompt, err := shell.NewAiShell(shell.AiShellConfig{
 		Openai:      client,
 		OpenaiModel: openaiModel,
-		PromptName:  "ubuntu",
+		PromptName:  promptOs,
 		Username:    shellUsername,
 		Hostname:    shellHostname,
 	})
 
 	if err != nil {
 		log.Fatal(err)
+	}
+
+	if shellCommand != "" {
+		output, err := aish.Execute(context.Background(), shellCommand)
+		if err != nil {
+			log.Fatal(err)
+			return
+		}
+		fmt.Print(utils.RemoveLastLine(output))
+		return
 	}
 
 	fmt.Print(initialPrompt)
@@ -77,13 +92,16 @@ func main() {
 		command, err := reader.ReadString('\n')
 		if err != nil {
 			log.Fatal(err)
-			break
+			return
 		}
+		log.Info("User", "command", command)
+
 		output, err := aish.Execute(context.Background(), command)
 		if err != nil {
 			log.Fatal(err)
-			break
+			return
 		}
+		log.Info("AI", "output", output)
 		fmt.Print(output)
 	}
 }
