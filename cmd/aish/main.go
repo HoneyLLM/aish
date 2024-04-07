@@ -41,7 +41,7 @@ func main() {
 	if promptOs == "" {
 		promptOs = "ubuntu"
 	}
-	shellUsername := os.Getenv("SHELL_USERNAME")
+	shellUsername := os.Getenv("AISH_USERNAME")
 	if shellUsername == "" {
 		u, _ := user.Current()
 		if u == nil {
@@ -50,14 +50,14 @@ func main() {
 			shellUsername = u.Username
 		}
 	}
-	shellHostname := os.Getenv("SHELL_HOSTNAME")
+	shellHostname := os.Getenv("AISH_HOSTNAME")
 	if shellHostname == "" {
 		shellHostname, _ = os.Hostname()
 		if shellHostname == "" {
 			shellHostname = "server"
 		}
 	}
-	shellCommand := os.Getenv("SHELL_COMMAND")
+	shellCommand := os.Getenv("AISH_COMMAND")
 
 	// Create a new OpenAI client
 	config := openai.DefaultConfig(openaiApiKey)
