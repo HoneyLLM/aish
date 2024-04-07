@@ -23,7 +23,7 @@ func main() {
 	if logFilePath != "" {
 		file, err := utils.GetWriter(logFilePath)
 		if err != nil {
-			log.Fatal(err)
+			log.Error(err)
 		}
 		log.SetOutput(file)
 	}
@@ -73,17 +73,18 @@ func main() {
 	})
 
 	if err != nil {
-		log.Fatal(err)
+		log.Error(err)
+		return
 	}
 
 	log.Info("New session", "user", shellUsername, "host", shellHostname)
-	defer log.Info("Session ended", "user", shellUsername, "host", shellHostname)
+	defer log.Info("Session end")
 
 	if shellCommand != "" {
 		log.Info("User", "command", shellCommand)
 		output, err := aish.Execute(context.Background(), shellCommand)
 		if err != nil {
-			log.Fatal(err)
+			log.Error("Session end", "error", err)
 			return
 		}
 		utils.HandleChannel(
@@ -108,16 +109,16 @@ func main() {
 	for {
 		fmt.Print(" ")
 		command, err := reader.ReadString('\n')
-		command = strings.TrimRight(command, "\n")
 		if err != nil {
-			log.Fatal(err)
+			log.Error("Session end", "error", err)
 			return
 		}
+		command = strings.TrimRight(command, "\n")
 		log.Info("User", "command", command)
 
 		output, err := aish.Execute(context.Background(), command)
 		if err != nil {
-			log.Fatal(err)
+			log.Error("Session end", "error", err)
 			return
 		}
 		utils.HandleChannel(
