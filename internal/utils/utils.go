@@ -63,22 +63,22 @@ func StringToLineChannel(strChan <-chan string) <-chan string {
 }
 
 func HandleChannel[T any](ch <-chan T, onEach func(T, bool), onFinish func([]T)) {
-	var buffer []T
 	var items []T
+	var prevItem T
+	hasPrevItem := false
 
 	for item := range ch {
-		if len(buffer) > 0 {
-			onEach(buffer[0], false)
-			items = append(items, buffer[0])
-			buffer = buffer[:0]
+		if hasPrevItem {
+			onEach(prevItem, false)
+			items = append(items, prevItem)
 		}
-
-		buffer = append(buffer, item)
+		prevItem = item
+		hasPrevItem = true
 	}
 
-	if len(buffer) > 0 {
-		onEach(buffer[0], true)
-		items = append(items, buffer[0])
+	if hasPrevItem {
+		onEach(prevItem, true)
+		items = append(items, prevItem)
 	}
 
 	onFinish(items)
