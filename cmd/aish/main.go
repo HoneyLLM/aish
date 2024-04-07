@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"os"
 	"os/user"
+	"strings"
 
 	"github.com/PeronGH/aish/internal/shell"
 	"github.com/PeronGH/aish/internal/utils"
@@ -84,9 +85,20 @@ func main() {
 			log.Fatal(err)
 			return
 		}
-		output = utils.RemoveLastLine(output)
-		log.Info("AI", "output", output)
-		fmt.Print(output)
+		utils.HandleChannel(
+			output,
+			func(line string, isLast bool) {
+				if !isLast {
+					fmt.Print(line)
+					fmt.Print("\n")
+				}
+			},
+			func(t []string) {
+				fullMsg := strings.Join(t, "\n")
+				log.Info("AI", "output", fullMsg)
+				aish.AddAiMessage(fullMsg)
+			},
+		)
 		return
 	}
 
@@ -106,7 +118,19 @@ func main() {
 			log.Fatal(err)
 			return
 		}
-		log.Info("AI", "output", output)
-		fmt.Print(output)
+		utils.HandleChannel(
+			output,
+			func(line string, isLast bool) {
+				fmt.Print(line)
+				if !isLast {
+					fmt.Print("\n")
+				}
+			},
+			func(t []string) {
+				fullMsg := strings.Join(t, "\n")
+				log.Info("AI", "output", fullMsg)
+				aish.AddAiMessage(fullMsg)
+			},
+		)
 	}
 }

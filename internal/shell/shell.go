@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/PeronGH/aish/internal/prompt"
+	"github.com/PeronGH/aish/internal/utils"
 	openai "github.com/sashabaranov/go-openai"
 )
 
@@ -40,20 +41,45 @@ func NewAiShell(config AiShellConfig) (*AiShell, string, error) {
 	}, prompt.InitialPrompt, nil
 }
 
-func (s *AiShell) Execute(ctx context.Context, command string) (string, error) {
+func (s *AiShell) Execute(ctx context.Context, command string) (<-chan string, error) {
 	s.history = append(
 		s.history,
 		openai.ChatCompletionMessage{Role: openai.ChatMessageRoleUser, Content: command},
 	)
-	response, err := s.openai.CreateChatCompletion(ctx, openai.ChatCompletionRequest{
+	response, err := s.openai.CreateChatCompletionStream(ctx, openai.ChatCompletionRequest{
 		Model:       s.model,
 		Messages:    s.history,
 		Temperature: 0,
 	})
 	if err != nil {
-		return "", err
+		return nil, err
 	}
-	aiMessage := response.Choices[0].Message
-	s.history = append(s.history, aiMessage)
-	return aiMessage.Content, nil
+
+	tokenCh := make(chan string)
+	go func() {
+		defer response.Close()
+		defer close(tokenCh)
+
+		for {
+			msg, err := response.Recv()
+			if err != nil {
+				return
+			}
+
+			tokenCh <- msg.Choices[0].Delta.Content
+		}
+	}()
+
+	return utils.StringToLineChannel(tokenCh), nil
+}
+
+func (s *AiShell) GetHistory() []openai.ChatCompletionMessage {
+	return s.history
+}
+
+func (s *AiShell) AddAiMessage(message string) {
+	s.history = append(
+		s.history,
+		openai.ChatCompletionMessage{Role: openai.ChatMessageRoleAssistant, Content: message},
+	)
 }
