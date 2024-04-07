@@ -3,7 +3,9 @@ package main
 import (
 	"bufio"
 	"context"
+	"errors"
 	"fmt"
+	"io"
 	"os"
 	"os/signal"
 	"os/user"
@@ -85,7 +87,7 @@ func main() {
 		log.Info("User", "command", shellCommand)
 		output, err := aish.Execute(context.Background(), shellCommand)
 		if err != nil {
-			log.Error("Session end", "error", err)
+			log.Fatal("Session end", "error", err)
 			return
 		}
 		utils.HandleChannel(
@@ -120,16 +122,18 @@ func main() {
 		fmt.Print(" ")
 		command, err := reader.ReadString('\n')
 		if err != nil {
-			log.Error("Session end", "error", err)
-			return
+			if errors.Is(err, io.EOF) {
+				fmt.Print("\nlogout\n")
+				return
+			}
+			log.Fatal("Session end", "error", err)
 		}
 		command = strings.TrimRight(command, "\n")
 		log.Info("User", "command", command)
 
 		output, err := aish.Execute(context.Background(), command)
 		if err != nil {
-			log.Error("Session end", "error", err)
-			return
+			log.Fatal("Session end", "error", err)
 		}
 		utils.HandleChannel(
 			output,
