@@ -77,6 +77,7 @@ func main() {
 	}
 
 	log.Info("New session", "user", shellUsername, "host", shellHostname)
+	defer log.Info("Session ended", "user", shellUsername, "host", shellHostname)
 
 	if shellCommand != "" {
 		log.Info("User", "command", shellCommand)
