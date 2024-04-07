@@ -81,15 +81,6 @@ func main() {
 	log.Info("New session", "user", shellUsername, "host", shellHostname)
 	defer log.Info("Session end")
 
-	signalCh := make(chan os.Signal, 1)
-	signal.Notify(signalCh, os.Interrupt)
-
-	go func() {
-		log.Info("Session end", "reason", <-signalCh)
-		fmt.Print("\nlogout\n")
-		os.Exit(0)
-	}()
-
 	if shellCommand != "" {
 		log.Info("User", "command", shellCommand)
 		output, err := aish.Execute(context.Background(), shellCommand)
@@ -113,6 +104,15 @@ func main() {
 		)
 		return
 	}
+
+	signalCh := make(chan os.Signal, 1)
+	signal.Notify(signalCh, os.Interrupt)
+
+	go func() {
+		log.Info("Session end", "reason", <-signalCh)
+		fmt.Print("\nlogout\n")
+		os.Exit(0)
+	}()
 
 	fmt.Print(initialPrompt)
 	reader := bufio.NewReader(os.Stdin)
