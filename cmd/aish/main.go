@@ -107,6 +107,7 @@ func main() {
 	for {
 		fmt.Print(" ")
 		command, err := reader.ReadString('\n')
+		command = strings.TrimRight(command, "\n")
 		if err != nil {
 			log.Fatal(err)
 			return
