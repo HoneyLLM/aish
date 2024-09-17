@@ -1,4 +1,4 @@
-.vscode
-.env
-aish
+/.vscode
+/.env
+/aish
 *.log
