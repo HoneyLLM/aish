@@ -7,7 +7,6 @@ import (
 	"fmt"
 	"io"
 	"iter"
-	"log/slog"
 	"strings"
 
 	"github.com/PeronGH/aish/internal/prompt"
@@ -16,8 +15,6 @@ import (
 )
 
 type Config struct {
-	logger *slog.Logger
-
 	PromptName string
 
 	// Data for prompt template
@@ -30,19 +27,12 @@ type Config struct {
 }
 
 type Instance struct {
-	logger    *slog.Logger
 	prompt    *prompt.Prompt
 	oaiClient *openai.Client
 	model     string
 }
 
 func New(config *Config) (*Instance, error) {
-	// Use default logger in unspecified
-	logger := config.logger
-	if logger == nil {
-		logger = slog.Default()
-	}
-
 	// Read prompt config and get prompt
 	promptName := config.PromptName
 	if promptName == "" {
@@ -80,7 +70,6 @@ func New(config *Config) (*Instance, error) {
 
 	return &Instance{
 		prompt:    prompt,
-		logger:    logger,
 		model:     config.OpenaiModel,
 		oaiClient: oaiClient,
 	}, nil
@@ -144,6 +133,7 @@ func (i *Instance) Handle(ctx context.Context, w io.Writer, input string) error 
 		if err != nil {
 			return err
 		}
+
 		for i, lineContent := range strings.Split(content, "\n") {
 			// For the first component
 			if i == 0 {
