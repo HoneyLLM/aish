@@ -9,8 +9,8 @@ import (
 	"iter"
 	"strings"
 
-	"github.com/PeronGH/aish/internal/prompt"
-	"github.com/PeronGH/aish/internal/utils"
+	"github.com/HoneyLLM/aish/internal/prompt"
+	"github.com/HoneyLLM/aish/internal/utils"
 	"github.com/sashabaranov/go-openai"
 )
 

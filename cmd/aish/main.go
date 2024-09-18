@@ -4,8 +4,8 @@ import (
 	"context"
 	"os"
 
-	"github.com/PeronGH/aish/internal/utils"
-	"github.com/PeronGH/aish/pkg/aish"
+	"github.com/HoneyLLM/aish/internal/utils"
+	"github.com/HoneyLLM/aish/pkg/aish"
 	"github.com/charmbracelet/log"
 	"github.com/joho/godotenv"
 	"github.com/sashabaranov/go-openai"
