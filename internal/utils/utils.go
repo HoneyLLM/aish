@@ -2,7 +2,6 @@ package utils
 
 import (
 	"bufio"
-	"context"
 	"io"
 	"iter"
 	"os"
@@ -85,43 +84,5 @@ func ReadShellCommand(r *bufio.Reader) iter.Seq2[string, error] {
 			// Regular character
 			builder.WriteRune(char)
 		}
-	}
-}
-
-// ContextReader wraps an io.Reader and adds context support.
-type ContextReader struct {
-	ctx    context.Context
-	reader io.Reader
-}
-
-// NewContextReader creates a new ContextReader.
-// Note that it may read an extra chunk after cancelled.
-func NewContextReader(ctx context.Context, reader io.Reader) *ContextReader {
-	return &ContextReader{
-		ctx:    ctx,
-		reader: reader,
-	}
-}
-
-// Read reads data into p, respecting the context's cancellation or deadline.
-func (cr *ContextReader) Read(p []byte) (n int, err error) {
-	type readResult struct {
-		n   int
-		err error
-	}
-
-	resultCh := make(chan readResult, 1)
-
-	// Start a goroutine to perform the read operation.
-	go func() {
-		n, err := cr.reader.Read(p)
-		resultCh <- readResult{n: n, err: err}
-	}()
-
-	select {
-	case <-cr.ctx.Done():
-		return 0, cr.ctx.Err()
-	case res := <-resultCh:
-		return res.n, res.err
 	}
 }

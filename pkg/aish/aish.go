@@ -193,9 +193,7 @@ func (i *Instance) HandleSession(ctx context.Context, stdin io.Reader, stdout io
 		},
 	)
 
-	ctxReader := utils.NewContextReader(ctx, stdin)
-
-	for command, err := range utils.ReadShellCommand(bufio.NewReader(ctxReader)) {
+	for command, err := range utils.ReadShellCommand(bufio.NewReader(stdin)) {
 		if errors.Is(err, io.EOF) {
 			return nil
 		}
