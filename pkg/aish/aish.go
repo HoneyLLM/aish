@@ -142,7 +142,7 @@ func (i *Instance) Handle(ctx context.Context, w io.Writer, input string) error 
 				buffer.WriteString(lineContent)
 				continue
 			}
-			// When new line is encoutnered
+			// When new line is encountered
 
 			// Print the last line if it is not empty
 			if lastLineNotEmpty {
@@ -224,7 +224,7 @@ func (i *Instance) HandleSession(ctx context.Context, stdin io.Reader, stdout io
 					buffer.WriteString(lineContent)
 					continue
 				}
-				// When new line is encoutnered
+				// When new line is encountered
 
 				// Flush the buffer
 				fmt.Fprintln(stdout, buffer.String())
